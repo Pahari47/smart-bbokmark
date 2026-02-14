@@ -1,5 +1,5 @@
-Challenges & How I Solved Them
-Google OAuth redirect issues
+## Challenges & How I Solved Them
+### Google OAuth redirect issues
 
 Problem:
 Google login kept failing with redirect_uri_mismatch.
@@ -11,7 +11,7 @@ Solution:
 Added this redirect URI in Google Cloud OAuth settings:
 https://<project-id>.supabase.co/auth/v1/callback
 
-Understanding Supabase Row Level Security
+### Understanding Supabase Row Level Security
 
 Problem:
 After enabling RLS, database queries returned empty results.
