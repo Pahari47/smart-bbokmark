@@ -23,33 +23,42 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getUser();
+    let channel: any;
 
-      if (!data.user) {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
         router.push("/");
         return;
       }
 
       setLoading(false);
-      fetchBookmarks();
+      await fetchBookmarks();
+
+      channel = supabase
+        .channel("bookmarks-realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "bookmarks",
+          },
+          () => {
+            fetchBookmarks();
+          }
+        )
+        .subscribe();
     };
 
-    checkUser();
-
-    const channel = supabase
-      .channel("bookmarks")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "bookmarks" },
-        () => fetchBookmarks()
-      )
-      .subscribe();
+    init();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, []);
+
 
   if (loading) return <p className="p-10">Loading...</p>;
 
