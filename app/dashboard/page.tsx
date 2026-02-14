@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import AddBookmarkForm from "@/components/AddBookmarkForm";
 import BookmarkList from "@/components/BookmarkList";
 import { Bookmark } from "@/types/bookmark";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchBookmarks = async () => {
     const { data } = await supabase
@@ -20,9 +23,20 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchBookmarks();
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
 
-    // REALTIME SUBSCRIPTION
+      if (!data.user) {
+        router.push("/");
+        return;
+      }
+
+      setLoading(false);
+      fetchBookmarks();
+    };
+
+    checkUser();
+
     const channel = supabase
       .channel("bookmarks")
       .on(
@@ -36,6 +50,8 @@ export default function Dashboard() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  if (loading) return <p className="p-10">Loading...</p>;
 
   return (
     <>
