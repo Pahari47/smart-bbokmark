@@ -12,7 +12,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className="flex justify-between p-4 bg-white shadow">
+    <div className="flex justify-between p-4 bg-white border-b border-gray-200">
       <h1 className="font-bold">Smart Bookmarks</h1>
       <button onClick={logout} className="text-red-500">
         Logout

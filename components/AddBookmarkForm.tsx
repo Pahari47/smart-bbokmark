@@ -16,9 +16,14 @@ export default function AddBookmarkForm() {
 
     if (!user) return;
 
+    let normalizedUrl = url.trim();
+    if (normalizedUrl && !normalizedUrl.match(/^https?:\/\//i)) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+
     await supabase.from("bookmarks").insert({
       title,
-      url,
+      url: normalizedUrl,
       user_id: user.id,
     });
 
@@ -27,7 +32,7 @@ export default function AddBookmarkForm() {
   };
 
   return (
-    <form onSubmit={addBookmark} className="bg-white p-4 rounded shadow space-y-3">
+    <form onSubmit={addBookmark} className="bg-white p-4 rounded border border-gray-200 space-y-3">
       <input
         placeholder="Title"
         className="w-full border p-2"
